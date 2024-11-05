@@ -1,0 +1,74 @@
+   'use strict';
+
+const { Contract } = require('fabric-contract-api');
+
+class SimpleChaincode extends Contract {
+
+    // Store data
+    async store(ctx, key, value) {
+        await ctx.stub.putState(key, Buffer.from(value));
+        return { success: true, message: `Data stored with key ${key}` };
+    }
+
+    // Retrieve data
+    async retrieve(ctx, key) {
+        const data = await ctx.stub.getState(key);
+        if (!data || data.length === 0) {
+            throw new Error(`Data with key ${key} does not exist`);
+        }
+        return data.toString();
+    }
+
+    // Update data
+    async update(ctx, key, newValue) {
+        const exists = await ctx.stub.getState(key);
+        if (!exists || exists.length === 0) {
+            throw new Error(`Cannot update. Data with key ${key} does not exist`);
+        }
+        await ctx.stub.putState(key, Buffer.from(newValue));
+        return { success: true, message: `Data updated for key ${key}` };
+    }
+
+    // Get History of a key
+    async getHistory(ctx, key) {
+        const iterator = await ctx.stub.getHistoryForKey(key);
+        const history = [];
+        let res = await iterator.next();
+        while (!res.done) {
+            const record = res.value;
+            history.push({
+                txId: record.txId,
+                timestamp: record.timestamp,
+                isDelete: record.isDelete,
+                value: record.value.toString('utf8')
+            });
+            res = await iterator.next();
+        }
+        await iterator.close();
+        return history;
+    }
+
+    // Retrieve data by non-primary key using CouchDB Rich Queries
+    async getByNonPrimaryKey(ctx, field, value) {
+        const query = {
+            selector: {
+                [field]: value
+            }
+        };
+        const iterator = await ctx.stub.getQueryResult(JSON.stringify(query));
+        const results = [];
+        let res = await iterator.next();
+        while (!res.done) {
+            const record = res.value;
+            results.push({
+                key: record.key,
+                value: record.value.toString('utf8')
+            });
+            res = await iterator.next();
+        }
+        await iterator.close();
+        return results;
+    }
+}
+
+module.exports = SimpleChaincode;
