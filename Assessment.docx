@@ -1,0 +1,39 @@
+1.	Steps for Installing and Instantiating Chaincode on Hyperledger Fabric 2.2
+
+1.	Setup the Environment: Ensuring Docker and Docker-Compose are installed, and that Fabric binaries and images are downloaded.
+
+2.	Generate Crypto Material and Configurations: Use the cryptogen and configtxgen tools to generate the necessary cryptographic materials and configuration files for the network
+
+3.	Create a Channel:
+•	Generate the channel creation transaction using configtxgen.
+•	Create the channel with peer channel create.
+•	Join peers to the channel using peer channel join.
+
+4.	Chaincode Package:
+•	Write the chaincode in JavaScript or any supported language.
+•	Package the chaincode with peer lifecycle chaincode package, which creates a tarball for the chaincode.
+
+5.	Install Chaincode:
+•	Install the packaged chaincode on each peer using peer lifecycle chaincode install.
+
+6.	Approve Chaincode Definition:
+•	Approve the chaincode for your organization using peer lifecycle chaincode approveformyorg.
+•	Use peer lifecycle chaincode queryinstalled to check the installed chaincode on peers.
+
+7.	Commit Chaincode Definition:
+•	Once all required organizations approve the chaincode, commit the chaincode using peer lifecycle chaincode commit.
+
+8.	Invoke and Test the Chaincode:
+•	Use peer chaincode invoke to test the chaincode by invoking its functions.
+
+2. Explanation of Cryptogen and Configtxgen Tools
+
+1.	Cryptogen:
+•	Cryptogen is a command-line tool used in Hyperledger Fabric to generate cryptographic material, such as certificates and private keys.
+•	It’s primarily used to create the necessary identities for network participants such as peers, orderers, and clients.
+•	The Cryptogen tool reads a crypto-config.yaml file which specifies the organizations, peers, and users, then generates the required certificates and keys for them.
+
+2.	 Configtxgen:
+•	configtxgen is a configuration tool for Hyperledger Fabric. It generates channel artifacts such as the genesis block and channel creation transactions.
+•	It reads a configuration file called configtx.yaml which contains definitions for the orderer and application channels.
+•	Common configtxgen commands include generating the genesis block and the channel creation transaction files.
